@@ -15,7 +15,7 @@ class QuizController extends StateNotifier<QuizState> {
     if (state.answered) return;
     if (currentQuestion.correctAnswer == answer) {
       state = state.copyWith(
-        //追加している　incorrect
+        //追加している　incorrect[]
         incorrect: [],
         selectedAnswer: answer,
         //QuestionをAnswerに変えてみた
@@ -24,8 +24,10 @@ class QuizController extends StateNotifier<QuizState> {
       );
     } else {
       state = state.copyWith(
+        //correct[]を追加した
         correct: [],
         selectedAnswer: answer,
+        //Questionをanswerに変更した
         incorrect: state.incorrect..add(answer),
         status: QuizStatus.incorrect,
       );
@@ -35,6 +37,7 @@ class QuizController extends StateNotifier<QuizState> {
   void nextQuestion(List<Question> questions, int currentIndex) {
     state = state.copyWith(
       selectedAnswer: '',
+      //correct[] incorrect[]を追加した
       correct: [],
       incorrect: [],
       status: currentIndex + 1 < questions.length

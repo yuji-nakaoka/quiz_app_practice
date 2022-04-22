@@ -40,6 +40,7 @@ class QuizRepository extends BaseQuizRositry {
         'https://opentdb.com/api.php?amount=10',
         queryParameters: queryParameters,
       );
+      print(response);
 
       if (response.statusCode == 200) {
         final data = Map<String, dynamic>.from(response.data);
