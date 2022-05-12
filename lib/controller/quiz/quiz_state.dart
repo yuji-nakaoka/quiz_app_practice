@@ -7,8 +7,8 @@ enum QuizStatus { initial, correct, incorrect, complete }
 
 class QuizState extends Equatable {
   final String selectedAnswer;
-  final List<String> incorrect;
-  final List<String> correct;
+  final List<Question> incorrect;
+  final List<Question> correct;
   final QuizStatus status;
 
   bool get answered =>
@@ -41,8 +41,8 @@ class QuizState extends Equatable {
 
   QuizState copyWith({
     required String selectedAnswer,
-    required List<String> correct,
-    required List<String> incorrect,
+    required List<Question> correct,
+    required List<Question> incorrect,
     required QuizStatus status,
   }) {
     return QuizState(

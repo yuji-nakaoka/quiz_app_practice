@@ -36,8 +36,8 @@ class MyApp extends StatelessWidget {
 }
 
 final quizQuestionsProvider = FutureProvider.autoDispose<List<Question>>(
-    ((ref) => ref.watch(quizRepositoryProvider).getQuestion(
-          numQuestion: 5,
+    ((ref) => ref.watch(quizRepositoryProvider).getQuestions(
+          numQuestions: 5,
           categoryId: Random().nextInt(24) + 9,
           difficulty: Difficulty.any,
         )));
@@ -63,25 +63,26 @@ class QuizScreen extends HookConsumerWidget {
         //背景色を無効にする
         backgroundColor: Colors.transparent,
         body: quizQuestions.when(
-          data: (date) => _buildBody(context, ref, pageController, date),
+          data: (questions) =>
+              _buildBody(context, ref, pageController, questions),
           error: (error, _) => QuizError(
               message:
                   error is Failure ? error.message : 'Something went wrong!'),
           loading: () => const Center(child: CircularProgressIndicator()),
         ),
         bottomSheet: quizQuestions.maybeWhen(
-          data: (date) {
-            final quizState = ref.watch(quizControllerProvider);
+          data: (questions) {
+            final quizState = ref.read(quizControllerProvider);
             if (!quizState.answered) return const SizedBox.shrink();
-            return CustomBotton(
-                title: pageController.page!.toInt() + 1 < date.length
+            return CustomButton(
+                title: pageController.page!.toInt() + 1 < questions.length
                     ? 'Next Question'
                     : 'See Results',
                 onTap: () {
                   ref
-                      .read(quizControllerProvider.notifier)
-                      .nextQuestion(date, pageController.page!.toInt());
-                  if (pageController.page!.toInt() + 1 < date.length) {
+                      .read(quizControllerProvider)
+                      .nextQuestion(questions, pageController.page!.toInt());
+                  if (pageController.page!.toInt() + 1 < questions.length) {
                     pageController.nextPage(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.linear,
@@ -89,7 +90,7 @@ class QuizScreen extends HookConsumerWidget {
                   }
                 });
           },
-          orElse: () => const SizedBox.shrink(),
+          orElse: () => null,
         ),
       ),
     );
@@ -105,7 +106,12 @@ class QuizScreen extends HookConsumerWidget {
 
     final quizState = ref.watch(quizControllerProvider);
     return quizState.status == QuizStatus.complete
-        ? QuizResults(state: quizState, questions: questions)
+        // ? QuizResults(state: quizState, questions: questions)
+        ? QuizQuestions(
+            state: quizState,
+            questions: questions,
+            pageController: pageController,
+          )
         : QuizQuestions(
             pageController: pageController,
             state: quizState,
@@ -133,9 +139,9 @@ class QuizError extends HookConsumerWidget {
             style: const TextStyle(color: Colors.white, fontSize: 20),
           ),
           const SizedBox(height: 20.0),
-          CustomBotton(
+          CustomButton(
             title: 'Retry',
-            onTap: () async => ref.refresh(quizRepositoryProvider),
+            onTap: () => ref.refresh(quizRepositoryProvider),
           )
         ],
       ),
@@ -151,11 +157,11 @@ List<BoxShadow> boxshadow = const [
   )
 ];
 
-class CustomBotton extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const CustomBotton({
+  const CustomButton({
     Key? key,
     required this.title,
     required this.onTap,
@@ -187,51 +193,51 @@ class CustomBotton extends StatelessWidget {
   }
 }
 
-class QuizResults extends HookConsumerWidget {
-  final QuizState state;
-  final List<Question> questions;
+//class QuizResults extends HookConsumerWidget {
+//  final QuizState state;
+// final List<Question> questions;
 
-  const QuizResults({
-    Key? key,
-    required this.state,
-    required this.questions,
-  }) : super(key: key);
+//  const QuizResults({
+//    Key? key,
+//    required this.state,
+//    required this.questions,
+//  }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            '${state.correct.length}/${questions.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 60.0,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const Text(
-            'CORRECT',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 48.0,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 40.0),
-          CustomBotton(
-            title: 'NEW QUIZ',
-            onTap: () {
-              ref.refresh(quizRepositoryProvider);
-              ref.read(quizControllerProvider.notifier).reset();
-            },
-          )
-        ]);
-  }
-}
+//  @override
+//  Widget build(BuildContext context, WidgetRef ref) {
+//    return Column(
+//        mainAxisAlignment: MainAxisAlignment.center,
+//        crossAxisAlignment: CrossAxisAlignment.stretch,
+//        children: [
+//          Text(
+//            '${state.correct.length}/${questions.length}',
+//            style: const TextStyle(
+//              color: Colors.white,
+//              fontSize: 60.0,
+//              fontWeight: FontWeight.w600,
+//            ),
+//            textAlign: TextAlign.center,
+//          ),
+//          const Text(
+//            'CORRECT',
+//            style: TextStyle(
+//              color: Colors.white,
+//              fontSize: 48.0,
+//              fontWeight: FontWeight.bold,
+//            ),
+//            textAlign: TextAlign.center,
+//          ),
+//          const SizedBox(height: 40.0),
+//          CustomButton(
+//            title: 'NEW QUIZ',
+//            onTap: () {
+//              ref.refresh(quizRepositoryProvider);
+//              ref.read(quizControllerProvider.notifier).reset();
+//            },
+//          )
+//        ]);
+//  }
+//}
 
 class QuizQuestions extends HookConsumerWidget {
   final PageController pageController;
@@ -247,11 +253,11 @@ class QuizQuestions extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView.builder(
+    return PageView.builder(
       controller: pageController,
       physics: NeverScrollableScrollPhysics(),
       itemCount: questions.length,
-      itemBuilder: (context, int index) {
+      itemBuilder: (BuildContext context, int index) {
         final question = questions[index];
         final questionlist = question.answers.cast<List>;
         return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -290,7 +296,7 @@ class QuizQuestions extends HookConsumerWidget {
                     isCorrect: e == question.correctAnswer,
                     isDisplayingAnswer: state.answered,
                     onTap: () => ref
-                        .read(quizControllerProvider.notifier)
+                        .read(quizControllerProvider)
                         .submitAnswer(question, e),
                   ),
                 )

@@ -14,20 +14,19 @@ final quizRepositoryProvider =
     Provider<QuizRepository>((ref) => QuizRepository(ref.read));
 
 class QuizRepository extends BaseQuizRositry {
-  //ここにはある↓
   final Reader _read;
   QuizRepository(this._read);
 
   @override
-  Future<List<Question>> getQuestion({
-    int? numQuestion,
-    int? categoryId,
-    Difficulty? difficulty,
+  Future<List<Question>> getQuestions({
+    required int numQuestions,
+    required int categoryId,
+    required Difficulty difficulty,
   }) async {
     try {
       final queryParameters = {
         'type': 'multiple',
-        'amount': 'numQuestion',
+        'amount': 'numQuestions',
         'category': 'categoryId',
       };
 
@@ -37,26 +36,24 @@ class QuizRepository extends BaseQuizRositry {
       }
 
       final response = await _read(dioProvider).get(
-        'https://opentdb.com/api.php?amount=10',
+        'https://opentdb.com/api.php',
         queryParameters: queryParameters,
       );
-      print(response);
 
       if (response.statusCode == 200) {
         final data = Map<String, dynamic>.from(response.data);
-        final results = List<Map<String, dynamic>>.from(data['results']);
+        final results = List<Map<String, dynamic>>.from(data['results'] ?? []);
         //final results = Map<String, dynamic>.from(data['results']) as List;
         if (results.isNotEmpty) {
-          return results.map((e) => Question.fromMap(e)).toList();
+          return results.map((e) => Question.fromMap(e)).toList()
+              as Future<List<Question>>;
         }
       }
       return [];
     } on DioError catch (err) {
-      print(err);
       throw Failure(
           message: err.response?.statusMessage ?? ' Something went wrong!');
-    } on SocketException catch (err) {
-      print(err);
+    } on SocketException catch (e) {
       throw const Failure(message: 'Please check your connection.');
     }
   }

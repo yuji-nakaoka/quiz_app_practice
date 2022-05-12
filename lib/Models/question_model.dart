@@ -1,13 +1,14 @@
 import 'package:equatable/equatable.dart';
 
+// ignore: must_be_immutable
 class Question extends Equatable {
-  final String category;
-  final String difficulty;
-  final String question;
-  final String correctAnswer;
-  final List<String> answers;
+  late String category;
+  late String difficulty;
+  late String question;
+  late String correctAnswer;
+  late List<String> answers;
 
-  const Question({
+  Question({
     required this.category,
     required this.difficulty,
     required this.question,
@@ -24,7 +25,9 @@ class Question extends Equatable {
         answers,
       ];
 
-  factory Question.fromMap(Map<String, dynamic> map) {
+  static Question? fromMap(Map<String, dynamic> map) {
+    // ignore: unnecessary_null_comparison
+    if (map == null) return null;
     return Question(
       category: map['category'] ?? '',
       difficulty: map['difficulty'] ?? '',

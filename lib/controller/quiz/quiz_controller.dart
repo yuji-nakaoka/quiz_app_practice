@@ -3,13 +3,12 @@ import 'package:flutter_app_quiz/controller/quiz/quiz_state.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final quizControllerProvider =
-    StateNotifierProvider.autoDispose<QuizController, QuizState>(
+    StateNotifierProvider.autoDispose<QuizController, dynamic>(
   (ref) => QuizController(),
 );
 
 class QuizController extends StateNotifier<QuizState> {
   QuizController() : super(QuizState.initial());
-  //ここには final Reader _read;が要らない
 
   void submitAnswer(Question currentQuestion, String answer) {
     if (state.answered) return;
@@ -19,7 +18,7 @@ class QuizController extends StateNotifier<QuizState> {
         incorrect: [],
         selectedAnswer: answer,
         //QuestionをAnswerに変えてみた
-        correct: state.correct..add(answer),
+        correct: state.correct..add(currentQuestion),
         status: QuizStatus.correct,
       );
     } else {
@@ -28,7 +27,7 @@ class QuizController extends StateNotifier<QuizState> {
         correct: [],
         selectedAnswer: answer,
         //Questionをanswerに変更した
-        incorrect: state.incorrect..add(answer),
+        incorrect: state.incorrect..add(currentQuestion),
         status: QuizStatus.incorrect,
       );
     }
