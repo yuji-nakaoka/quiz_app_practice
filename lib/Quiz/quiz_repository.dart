@@ -45,6 +45,7 @@ class QuizRepository extends BaseQuizRepository {
         final results = List<Map<String, dynamic>>.from(data['results'] ?? []);
         //final results = Map<String, dynamic>.from(data['results']) as List;
         if (results.isNotEmpty) {
+          //resultsのmapからQuestionのmapに変更してリストにしてる
           return results.map((e) => Question.fromMap(e)).toList()
               as Future<List<Question>>;
         }
