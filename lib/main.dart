@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app_quiz/Enums/difficulty.dart';
-import 'package:flutter_app_quiz/Models/question_model.dart';
+import 'package:flutter_app_quiz/enums/difficulty.dart';
+import 'package:flutter_app_quiz/models/question_model.dart';
 import 'package:flutter_app_quiz/Quiz/quiz_repository.dart';
 import 'package:flutter_app_quiz/controller/quiz/quiz_controller.dart';
 import 'package:flutter_app_quiz/controller/quiz/quiz_state.dart';
@@ -11,7 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:html_character_entities/html_character_entities.dart';
 import 'dart:math';
-import 'Models/failure_model.dart';
+import 'models/failure_model.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,13 +36,14 @@ class MyApp extends StatelessWidget {
 }
 
 final quizQuestionsProvider = FutureProvider.autoDispose<List<Question>>(
-    ((ref) => ref.watch(quizRepositoryProvider).getQuestions(
+    (ref) => ref.watch(quizRepositoryProvider).getQuestions(
           numQuestions: 5,
           categoryId: Random().nextInt(24) + 9,
           difficulty: Difficulty.any,
-        )));
+        ));
 
 class QuizScreen extends HookConsumerWidget {
+  const QuizScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final quizQuestions = ref.watch(quizQuestionsProvider);
@@ -65,9 +66,8 @@ class QuizScreen extends HookConsumerWidget {
         body: quizQuestions.when(
           data: (questions) =>
               _buildBody(context, ref, pageController, questions),
-          error: (error, _) => QuizError(
-              message:
-                  error is Failure ? error.message : 'Something went wrong!'),
+          error: (error, _) =>
+              QuizError(message: error is Failure ? error.message : '問題発生!'),
           loading: () => const Center(child: CircularProgressIndicator()),
         ),
         bottomSheet: quizQuestions.maybeWhen(

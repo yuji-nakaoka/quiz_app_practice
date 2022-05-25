@@ -1,7 +1,7 @@
-import 'package:flutter_app_quiz/Models/question_model.dart';
-import '/Enums/difficulty.dart';
+import 'package:flutter_app_quiz/models/question_model.dart';
+import '/enums/difficulty.dart';
 
-abstract class BaseQuizRositry {
+abstract class BaseQuizRepository {
   Future<List<Question>> getQuestions({
     required int numQuestions,
     required int categoryId,

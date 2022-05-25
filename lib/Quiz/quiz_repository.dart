@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dio/dio.dart';
-import '/Models/failure_model.dart';
-import '/Enums/difficulty.dart';
-import '/Models/question_model.dart';
+import '/models/failure_model.dart';
+import '/enums/difficulty.dart';
+import '/models/question_model.dart';
 import 'base_quiz_repository.dart';
 
 final dioProvider = Provider<Dio>((ref) => Dio());
@@ -13,7 +13,7 @@ final dioProvider = Provider<Dio>((ref) => Dio());
 final quizRepositoryProvider =
     Provider<QuizRepository>((ref) => QuizRepository(ref.read));
 
-class QuizRepository extends BaseQuizRositry {
+class QuizRepository extends BaseQuizRepository {
   final Reader _read;
   QuizRepository(this._read);
 
@@ -26,8 +26,8 @@ class QuizRepository extends BaseQuizRositry {
     try {
       final queryParameters = {
         'type': 'multiple',
-        'amount': 'numQuestions',
-        'category': 'categoryId',
+        'amount': numQuestions,
+        'category': categoryId,
       };
 
       if (difficulty != Difficulty.any) {

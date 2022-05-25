@@ -24,11 +24,11 @@ class Question extends Equatable {
         correctAnswer,
         answers,
       ];
-
+//インスタンス化しない/mapからQuestioのインスタンスを作る/Map<>でString,dynamicを紐付けてる
   static Question? fromMap(Map<String, dynamic> map) {
     // ignore: unnecessary_null_comparison
-    if (map == null) return null;
     return Question(
+      //String:dynamic (Mapの中身)紐付いてる部分
       category: map['category'] ?? '',
       difficulty: map['difficulty'] ?? '',
       question: map['question'] ?? '',

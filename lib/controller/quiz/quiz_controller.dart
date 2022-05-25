@@ -1,4 +1,4 @@
-import 'package:flutter_app_quiz/Models/question_model.dart';
+import 'package:flutter_app_quiz/models/question_model.dart';
 import 'package:flutter_app_quiz/controller/quiz/quiz_state.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
